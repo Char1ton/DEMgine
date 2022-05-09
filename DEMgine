@@ -1,0 +1,100 @@
+import numpy as np
+import csv
+
+
+
+class Forces:
+
+    def Accel(Fcontact,Funiversal,Fbound):
+        A=Fcontact+Funiversal+Fbound
+
+        return A
+    
+    def Contact(theta,ep):
+        Fc=((-ep)*np.cos(theta),(-ep)*np.sin(theta))
+
+        return Fc
+    
+    def Universal(Fx,Fy):
+        Fu=((Fx,Fy))
+
+        return Fu
+
+class Velocities:
+
+    def VelocityUpdate(vel, acc, dt):
+        v=vel+acc*dt
+
+        return v
+
+class Positions:
+    def PositionUpdate(pos,vel,acc,dt):
+        p=pos+vel*dt+acc*dt**2
+
+        return p
+
+    def PositionWrite(pos):
+        f=open('PosWrite.csv','w')
+        writer=csv.writer(f)
+        writer.writerow(pos)
+        f.close()
+
+class Interaction:
+    def ParticleBump(pos,vel,r):
+        Ri=1
+        print(pos)
+        F_int=np.zeros((len(pos),2))
+        for n in range(0,len(pos)-1):
+            for m in range(n+1,len(pos)):
+                x=pos[n][0]-pos[m][0]
+                y=pos[n][1]-pos[m][1]
+                #print(x,y)
+                if abs(x)<=Ri*2*r and abs(y)<=Ri*2*r:
+                    d=np.sqrt((x**2)+(y**2))
+                    if d<=Ri*2*r:
+                        ep=r-(d/2)
+                        if x==0:
+                            theta_nm=np.pi/2
+                            theta_mn=3*np.pi/2
+                            F_int[n]=Forces.Contact(self,theta_nm,ep)
+                            F_int[m]+=Forces.Contact(self,theta_mn,ep)
+                        else:
+                            theta_nm=np.arctan(y/x)
+                            theta_mn=theta_nm+np.pi
+                            F_int[n]=Forces.Contact(self,theta_nm,ep)
+                            F_int[m]=Forces.Contact(self,theta_mn,ep)
+                            
+        return F_int
+
+class Init:
+    def Warning(self):
+        print('IN PROGRESS')
+
+    def ManualTest():
+        p=((1,1),(2,2),(3,3),(4,4))
+        v=((1,0),(0,1),(-1,0),(0,-1))
+        a=((0,0),(0,0),(0,0),(0,0))
+
+        return p, v
+
+class Boundary:
+    def Box(X,Y,pos,vel,r):
+        Fwall=np.zeros((len(pos),2))
+        for n in range(0,len(pos)):
+            if abs((-X/2)-pos[n][0])<=r or (X/2)-pos[n][0]<=r:
+                d=r-abs(pos[n][0])
+                Fwall[n]=Forces.Contact(0,-d)
+            elif abs((-Y/2)-pos[n][1])<=r or (Y/2)-pos[n][1]<=r:
+                d=r-abs(pos[n][1])
+                Fwall[n]=Forces.Contact(np.pi/2,-d)
+            else:
+                vel=vel
+                pos=pos
+        return pos, vel, Fwall
+            
+        
+            
+
+class Rolling:
+    def Warning(self):
+        print('IN PROGRESS')
