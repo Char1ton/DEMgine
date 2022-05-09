@@ -1,0 +1,34 @@
+import numpy as np
+import DEMgine
+
+pint, vint=DEMgine.Init.ManualTest()
+
+aint=np.zeros((len(pint),2))
+
+t=0
+
+r=0.1
+dt=0.1
+
+def ModelLoop(p,v,a):
+    a_con=DEMgine.Interaction.ParticleBump(p,v,r)
+    a_bound=DEMgine.Boundary.Box(6,6,p,v,r)
+    a_univ=DEMgine.Forces.Universal(0,-9.8)
+    a_up=DEMgine.Forces.Accel(a_con,a_univ,a_bound)
+    v_up=DEMgine.Velocities.VelocityUpdate(v,a_up,dt)
+    p_up=DEMgine.Positions.PositionUpdate(p,v_up,a_up,dt)
+    w=DEMgine.Positions.PositionWrite(p_up)
+    p,v=p_up,v_up
+    a=np.zeros((len(p),2))
+
+    t=+1
+
+    if t==5:
+        print('Stopping')
+
+    else:
+        ModelLoop(p,v,a)
+
+ModelLoop(pint,vint,aint)
+    
+    
